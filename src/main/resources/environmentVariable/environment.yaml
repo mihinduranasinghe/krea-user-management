@@ -1,0 +1,8 @@
+APPLICATION_ENV: "dev"
+CORS_ALLOWED_ORIGINS: "http://localhost:8085"
+API_SPEC: "https://krea-ums-api-specificifation"
+MYSQL_DB_URL: "krea-user-management.cnsys8oquoqw.us-east-1.rds.amazonaws.com:3306"
+MYSQL_DB_USERNAME: "root"
+MYSQL_DB_PASSWORD: "rootroot"
+JWT_SECRET: "0GZVZzZLL5UkFd5L2sWbGyWq2kH/2A4g9cR8pCqhJrIaTmC+PiVc4AaTiWp5Bt0Jxj6lH0k9P3N1+z3Vr4HWlw=="
+JWT_EXPIRATION_TIME: "86400000"
