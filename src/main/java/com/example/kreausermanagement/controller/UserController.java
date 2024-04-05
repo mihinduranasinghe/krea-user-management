@@ -2,6 +2,8 @@ package com.example.kreausermanagement.controller;
 
 import com.example.kreausermanagement.dto.request.UserRequest;
 import com.example.kreausermanagement.dto.response.*;
+import com.example.kreausermanagement.dto.response.error.ErrorResponse;
+import com.example.kreausermanagement.dto.response.error.UserStatusErrorResponse;
 import com.example.kreausermanagement.service.impl.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -54,21 +56,21 @@ public class UserController {
     @Operation(summary = "submit user information", description = "This endpoint will be used to create a new user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success Response",
-                    content = @Content(schema = @Schema(implementation = UserRequestResponse.class), mediaType = "application/json")),
+                    content = @Content(schema = @Schema(implementation = UserCreateResponse.class), mediaType = "application/json")),
             @ApiResponse(responseCode = "207", description = "Partially Success Response",
-                    content = @Content(schema = @Schema(implementation = UserRequestResponse.class), mediaType = "application/json")),
+                    content = @Content(schema = @Schema(implementation = UserCreateResponse.class), mediaType = "application/json")),
             @ApiResponse(responseCode = "500", description = "Internal System Error",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")),
             @ApiResponse(responseCode = "400", description = "Invalid Parameter Request",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json"))
     })
     @PostMapping("/users")
-    public ResponseEntity<UserRequestResponse> submitNewUser(@RequestBody UserRequest request) {
-        UserRequestResponse jobRequestResponse = userService.addUserDetails(request);
+    public ResponseEntity<UserCreateResponse> submitNewUser(@RequestBody UserRequest request) {
+        UserCreateResponse jobRequestResponse = userService.addUserDetails(request);
         return new ResponseEntity<>(jobRequestResponse, getHttpStatus(jobRequestResponse));
     }
-    private HttpStatus getHttpStatus(UserRequestResponse jobRequestResponse) {
-        return switch (jobRequestResponse.getData().getStatus()) {
+    private HttpStatus getHttpStatus(UserCreateResponse jobRequestResponse) {
+        return switch (jobRequestResponse.getStatus()) {
             case SUCCESS -> HttpStatus.OK;
             case FAILED -> HttpStatus.BAD_REQUEST;
         };

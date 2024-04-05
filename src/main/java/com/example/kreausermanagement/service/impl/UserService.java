@@ -5,6 +5,8 @@ import com.example.kreausermanagement.common.enums.Error;
 import com.example.kreausermanagement.common.enums.ResponseStatus;
 import com.example.kreausermanagement.dto.request.UserRequest;
 import com.example.kreausermanagement.dto.response.*;
+import com.example.kreausermanagement.dto.response.error.ErrorResponse;
+import com.example.kreausermanagement.dto.response.error.UserStatusErrorResponse;
 import com.example.kreausermanagement.entity.Role;
 import com.example.kreausermanagement.entity.User;
 import com.example.kreausermanagement.exception.RestException;
@@ -22,10 +24,9 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -53,8 +54,8 @@ public class UserService implements IUserService {
     private String apiDocumentation;
 
     @Override
-    public UserRequestResponse addUserDetails(UserRequest request) {
-        UserRequestResponse response = UserRequestResponse.builder().build();
+    public UserCreateResponse addUserDetails(UserRequest request) {
+        UserCreateResponse response = UserCreateResponse.builder().build();
         try {
             log.info("User request received to create a new user : {}", request);
             Role role = roleRepository.findByName(Constants.ROLE_USER)
@@ -70,12 +71,10 @@ public class UserService implements IUserService {
 
             User saveResponse = userRequestRepository.save(user);
             log.info("User saved successfully with the user ID : {}", saveResponse.getUserId());
-            response.setData(UserRequestResponseData.builder()
-                    .userId(saveResponse.getUserId())
-                    .userName(saveResponse.getName())
-                    .status(ResponseStatus.SUCCESS).build());
+            response.setData(createUserPublicInfo(saveResponse));
+            response.setStatus(ResponseStatus.SUCCESS);
         } catch (RestException ex) {
-            response.setData(UserRequestResponseData.builder().status(ResponseStatus.FAILED).build());
+            response.setStatus(ResponseStatus.FAILED);
             response.setError(ErrorResponse.builder()
                     .code(ex.getCode())
                     .message(ex.getMessage())
@@ -146,7 +145,10 @@ public class UserService implements IUserService {
             log.info("Retrieving all user");
             List<User> kreaUsers = userRequestRepository.findAll();
             log.info("Users retrieved successfully");
-            userDetailResponse.setUsers(kreaUsers);
+            List<UserResponsePublicData> userResponsePublicDataList = kreaUsers.stream()
+                    .map(UserService::createUserPublicInfo)
+                    .collect(Collectors.toList());
+            userDetailResponse.setUsers(userResponsePublicDataList);
             userDetailResponse.setStatus(ResponseStatus.SUCCESS);
         } catch (Exception ex) {
             log.error("Exception occurred while retrieving users with error : {}", ex.getMessage(), ex);
@@ -168,7 +170,7 @@ public class UserService implements IUserService {
             if (kreaUser.isPresent()) {
                 log.info("User retrieved successfully for the ID : {} ", id);
                 userDetailResponse.setUserId(kreaUser.get().getUserId());
-                userDetailResponse.setUser(kreaUser.get());
+                userDetailResponse.setUser(createUserPublicInfo(kreaUser.get()));
                 userDetailResponse.setStatus(ResponseStatus.SUCCESS);
             } else {
                 log.error("There is no user found with the ID : {}", id);
@@ -198,7 +200,7 @@ public class UserService implements IUserService {
             if (kreaUser.isPresent()) {
                 userRequestRepository.deleteById(id);
                 userDetailResponse.setUserId(kreaUser.get().getUserId());
-                userDetailResponse.setUser(kreaUser.get());
+                userDetailResponse.setUser(createUserPublicInfo(kreaUser.get()));
                 userDetailResponse.setStatus(ResponseStatus.SUCCESS);
                 log.info("User removed successfully for the user Id : {}", id);
             } else {
@@ -217,6 +219,16 @@ public class UserService implements IUserService {
                     .timestamp(Timestamp.valueOf(LocalDateTime.now())).build());
         }
         return userDetailResponse;
+    }
+
+    private static UserResponsePublicData createUserPublicInfo(User saveResponse) {
+        return UserResponsePublicData.builder()
+                .address(saveResponse.getAddress())
+                .email(saveResponse.getEmail())
+                .name(saveResponse.getName())
+                .occupation(saveResponse.getOccupation())
+                .role(saveResponse.getRole())
+                .userId(saveResponse.getUserId()).build();
     }
 
 }

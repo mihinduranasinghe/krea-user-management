@@ -1,5 +1,6 @@
 package com.example.kreausermanagement.service.impl;
 
+import com.example.kreausermanagement.dto.request.LoginRequest;
 import com.example.kreausermanagement.dto.response.AuthenticationResponse;
 import com.example.kreausermanagement.entity.Token;
 import com.example.kreausermanagement.entity.User;
@@ -62,7 +63,7 @@ public class AuthenticationService {
 
     }
 
-    public AuthenticationResponse authenticate(User request) {
+    public AuthenticationResponse authenticate(LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),

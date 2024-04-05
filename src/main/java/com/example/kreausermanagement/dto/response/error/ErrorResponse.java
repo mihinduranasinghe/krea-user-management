@@ -1,4 +1,4 @@
-package com.example.kreausermanagement.dto.response;
+package com.example.kreausermanagement.dto.response.error;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

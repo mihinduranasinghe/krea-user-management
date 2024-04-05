@@ -1,5 +1,6 @@
 package com.example.kreausermanagement.controller;
 
+import com.example.kreausermanagement.dto.request.LoginRequest;
 import com.example.kreausermanagement.dto.response.AuthenticationResponse;
 import com.example.kreausermanagement.entity.User;
 import com.example.kreausermanagement.service.impl.AuthenticationService;
@@ -27,7 +28,7 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(
-            @RequestBody User request
+            @RequestBody LoginRequest request
     ) {
         return ResponseEntity.ok(authService.authenticate(request));
     }

@@ -11,12 +11,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserRequestResponseData {
+public class UserResponseData {
     @JsonProperty("user_id")
     private Long userId;
 
     @JsonProperty("user_name")
     private String userName;
-
-    private ResponseStatus status;
 }

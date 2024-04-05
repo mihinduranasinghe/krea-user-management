@@ -1,4 +1,4 @@
-package com.example.kreausermanagement.dto.response;
+package com.example.kreausermanagement.dto.response.error;
 
 
 import lombok.Data;
