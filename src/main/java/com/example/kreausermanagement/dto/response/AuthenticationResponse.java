@@ -1,15 +1,17 @@
 package com.example.kreausermanagement.dto.response;
 
-import lombok.Getter;
+import com.example.kreausermanagement.common.enums.ResponseStatus;
+import com.example.kreausermanagement.dto.response.error.ErrorResponse;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Builder;
+import lombok.Data;
 
-@Getter
+@Data
+@Builder
 public class AuthenticationResponse {
     private String token;
-    private String message;
-
-    public AuthenticationResponse(String token, String message) {
-        this.token = token;
-        this.message = message;
-    }
-
+    private UserResponsePublicData data;
+    private ResponseStatus status;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private ErrorResponse error;
 }

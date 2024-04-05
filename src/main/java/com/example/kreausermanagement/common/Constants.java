@@ -11,6 +11,9 @@ public class Constants {
     // Common messages
     public static final int USER_ID_INVALID_ERROR_CODE = 100;
     public static final String USER_ID_INVALID_MESSAGE = "user_id is invalid";
+    public static final int USER_ALREADY_EXIST_ERROR_CODE = 100;
+
+    public static final String USER_ALREADY_EXIST_MESSAGE = "user already exist in the system";
     public static final int INTERNAL_SERVER_ERROR_CODE = 900;
     public static final String INTERNAL_SERVER_ERROR_MESSAGE = "Unexpected error while processing the message";
 

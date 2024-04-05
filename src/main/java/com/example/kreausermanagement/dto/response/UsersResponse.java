@@ -2,7 +2,6 @@ package com.example.kreausermanagement.dto.response;
 
 import com.example.kreausermanagement.common.enums.ResponseStatus;
 import com.example.kreausermanagement.dto.response.error.UserStatusErrorResponse;
-import com.example.kreausermanagement.entity.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;

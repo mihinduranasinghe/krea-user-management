@@ -1,12 +1,24 @@
 package com.example.kreausermanagement.service.impl;
 
+import com.example.kreausermanagement.common.Constants;
+import com.example.kreausermanagement.common.enums.Error;
+import com.example.kreausermanagement.common.enums.ResponseStatus;
 import com.example.kreausermanagement.dto.request.LoginRequest;
+import com.example.kreausermanagement.dto.request.UserRequest;
 import com.example.kreausermanagement.dto.response.AuthenticationResponse;
+import com.example.kreausermanagement.dto.response.UserResponsePublicData;
+import com.example.kreausermanagement.dto.response.error.ErrorResponse;
+import com.example.kreausermanagement.entity.Role;
 import com.example.kreausermanagement.entity.Token;
 import com.example.kreausermanagement.entity.User;
+import com.example.kreausermanagement.repository.IRoleRepository;
 import com.example.kreausermanagement.repository.ITokenRepository;
 import com.example.kreausermanagement.repository.IUserRepository;
 import com.example.kreausermanagement.security.JwtService;
+import com.example.kreausermanagement.service.IAuthenticationService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,7 +27,14 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class AuthenticationService {
+@Slf4j
+public class AuthenticationService implements IAuthenticationService {
+
+    @Value("${krea.ums.api.documentation}")
+    private String apiDocumentation;
+
+    @Autowired
+    private IRoleRepository roleRepository;
 
     private final IUserRepository repository;
     private final PasswordEncoder passwordEncoder;
@@ -37,48 +56,95 @@ public class AuthenticationService {
         this.authenticationManager = authenticationManager;
     }
 
-    public AuthenticationResponse register(User request) {
-
+    @Override
+    public AuthenticationResponse register(UserRequest request) {
         // check if user already exist. if exist than authenticate the user
-        if(repository.findByEmail(request.getEmail()) != null) {
-            return new AuthenticationResponse(null, "User already exist");
+        try {
+            if(repository.findByEmail(request.getEmail()) != null) {
+                return AuthenticationResponse.builder()
+                        .token(null)
+                        .status(ResponseStatus.FAILED)
+                        .error(ErrorResponse.builder()
+                                .code(Error.USER_ALREADY_EXIST_ERROR.getCode())
+                                .message(Error.USER_ID_INVALID_ERROR.getMessage())
+                                .informationLink(apiDocumentation)
+                                .build())
+                        .build();
+            }
+            Role role = roleRepository.findByName(Constants.ROLE_USER)
+                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            User user = new User();
+            user.setName(request.getUserName());
+            user.setEmail(request.getEmail());
+            user.setAddress(request.getAddress());
+            user.setOccupation(request.getOccupation());
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+            user.setRole(role);
+            user = repository.save(user);
+            String jwt = jwtService.generateToken(user);
+            saveUserToken(jwt, user);
+            return AuthenticationResponse.builder()
+                    .token(jwt)
+                    .data(UserResponsePublicData.builder()
+                            .address(user.getAddress())
+                            .email(user.getEmail())
+                            .name(user.getName())
+                            .occupation(user.getOccupation())
+                            .role(user.getRole())
+                            .userId(user.getUserId()).build())
+                    .status(ResponseStatus.SUCCESS)
+                    .build();
+        } catch (Exception ex) {
+            log.error("Exception occurred while registering user for the ID : {} error : {}", request.getEmail(), ex.getMessage(), ex);
+            AuthenticationResponse userDetailResponse = AuthenticationResponse.builder()
+                    .status(ResponseStatus.FAILED)
+                    .error(ErrorResponse.builder()
+                            .code(Error.INTERNAL_SERVER_ERROR.getCode())
+                            .message(Error.INTERNAL_SERVER_ERROR.getMessage())
+                            .informationLink(apiDocumentation)
+                            .build())
+                    .build();
+            return userDetailResponse;
         }
-
-        User user = new User();
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
-        user.setAddress(request.getAddress());
-        user.setOccupation(request.getOccupation());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        user.setRole(request.getRole());
-
-        user = repository.save(user);
-
-        String jwt = jwtService.generateToken(user);
-
-        saveUserToken(jwt, user);
-
-        return new AuthenticationResponse(jwt, "User registration was successful");
 
     }
 
+    @Override
     public AuthenticationResponse authenticate(LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
-
-        User user = repository.findByEmail(request.getEmail());
-        String jwt = jwtService.generateToken(user);
-
-        revokeAllTokenByUser(user);
-        saveUserToken(jwt, user);
-
-        return new AuthenticationResponse(jwt, "User login was successful");
-
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
+            User user = repository.findByEmail(request.getEmail());
+            String jwt = jwtService.generateToken(user);
+            revokeAllTokenByUser(user);
+            saveUserToken(jwt, user);
+            return AuthenticationResponse.builder()
+                    .token(jwt)
+                    .data(UserResponsePublicData.builder()
+                            .address(user.getAddress())
+                            .email(user.getEmail())
+                            .name(user.getName())
+                            .occupation(user.getOccupation())
+                            .role(user.getRole())
+                            .userId(user.getUserId()).build())
+                    .status(ResponseStatus.SUCCESS)
+                    .build();
+        } catch (Exception ex) {
+            log.error("Exception occurred while retrieving user for the ID : {} error : {}", request.getEmail(), ex.getMessage(), ex);
+            AuthenticationResponse userDetailResponse = AuthenticationResponse.builder()
+                    .status(ResponseStatus.FAILED)
+                    .error(ErrorResponse.builder()
+                            .code(Error.USER_ID_INVALID_ERROR.getCode())
+                            .message(ex.getMessage())
+                            .informationLink(apiDocumentation)
+                            .build())
+                    .build();
+            return userDetailResponse;
+        }
     }
     private void revokeAllTokenByUser(User user) {
         List<Token> validTokens = tokenRepository.findAllTokensByUser(user.getUserId());

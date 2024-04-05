@@ -4,7 +4,8 @@ import com.example.kreausermanagement.dto.request.UserRequest;
 import com.example.kreausermanagement.dto.response.*;
 import com.example.kreausermanagement.dto.response.error.ErrorResponse;
 import com.example.kreausermanagement.dto.response.error.UserStatusErrorResponse;
-import com.example.kreausermanagement.service.impl.UserService;
+import com.example.kreausermanagement.entity.User;
+import com.example.kreausermanagement.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -27,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    private IUserService userService;
 
     @Operation(summary = "Get All User Details", description = "This endpoint will be used to retrieve all user details")
     @ApiResponses(value = {
@@ -65,7 +66,7 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json"))
     })
     @PostMapping("/users")
-    public ResponseEntity<UserCreateResponse> submitNewUser(@RequestBody UserRequest request) {
+    public ResponseEntity<UserCreateResponse> submitNewUser(@RequestBody User request) {
         UserCreateResponse jobRequestResponse = userService.addUserDetails(request);
         return new ResponseEntity<>(jobRequestResponse, getHttpStatus(jobRequestResponse));
     }

@@ -7,7 +7,6 @@ import com.example.kreausermanagement.dto.request.UserRequest;
 import com.example.kreausermanagement.dto.response.*;
 import com.example.kreausermanagement.dto.response.error.ErrorResponse;
 import com.example.kreausermanagement.dto.response.error.UserStatusErrorResponse;
-import com.example.kreausermanagement.entity.Role;
 import com.example.kreausermanagement.entity.User;
 import com.example.kreausermanagement.exception.RestException;
 import com.example.kreausermanagement.repository.IRoleRepository;
@@ -54,19 +53,16 @@ public class UserService implements IUserService {
     private String apiDocumentation;
 
     @Override
-    public UserCreateResponse addUserDetails(UserRequest request) {
+    public UserCreateResponse addUserDetails(User request) {
         UserCreateResponse response = UserCreateResponse.builder().build();
         try {
             log.info("User request received to create a new user : {}", request);
-            Role role = roleRepository.findByName(Constants.ROLE_USER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-
             User user = User.builder()
-                    .name(request.getUserName())
+                    .name(request.getName())
                     .address(request.getAddress())
                     .email(request.getEmail())
                     .password(passwordEncoder.encode(request.getPassword()))
-                    .role(role)
+                    .role(request.getRole())
                     .occupation(request.getOccupation()).build();
 
             User saveResponse = userRequestRepository.save(user);
@@ -89,6 +85,7 @@ public class UserService implements IUserService {
                     .message(Error.INTERNAL_SERVER_ERROR.getMessage())
                     .informationLink(apiDocumentation)
                     .build());
+            response.setStatus(ResponseStatus.FAILED);
         }
         return response;
     }
@@ -117,6 +114,8 @@ public class UserService implements IUserService {
                         .message(Error.USER_ID_INVALID_ERROR.getMessage())
                         .informationLink(apiDocumentation)
                         .build());
+                response.setData(UserUpdateResponseData.builder()
+                        .status(ResponseStatus.FAILED).build());
             }
         } catch (RestException ex) {
             response.setData(UserUpdateResponseData.builder().status(ResponseStatus.FAILED).build());
@@ -129,6 +128,7 @@ public class UserService implements IUserService {
                     .build());
         } catch (Exception ex) {
             log.error("Exception occurred while updating user : {}", ex.getMessage(), ex);
+            response.setData(UserUpdateResponseData.builder().status(ResponseStatus.FAILED).build());
             response.setError(ErrorResponse.builder()
                     .code(Error.INTERNAL_SERVER_ERROR.getCode())
                     .message(Error.INTERNAL_SERVER_ERROR.getMessage())
@@ -153,9 +153,10 @@ public class UserService implements IUserService {
         } catch (Exception ex) {
             log.error("Exception occurred while retrieving users with error : {}", ex.getMessage(), ex);
             userDetailResponse.setError(UserStatusErrorResponse.builder()
-                    .name(Constants.INVALID_REQUEST)
-                    .message(Constants.INTERNAL_SERVER_ERROR_MESSAGE)
+                    .name(Constants.INTERNAL_SERVER_ERROR_MESSAGE)
+                    .message(ex.getMessage())
                     .timestamp(Timestamp.valueOf(LocalDateTime.now())).build());
+            userDetailResponse.setStatus(ResponseStatus.FAILED);
         }
         return userDetailResponse;
     }
@@ -182,9 +183,10 @@ public class UserService implements IUserService {
             }
         } catch (Exception ex) {
             log.error("Exception occurred while retrieving user for the ID : {} error : {}", id, ex.getMessage(), ex);
+            userDetailResponse.setStatus(ResponseStatus.FAILED);
             userDetailResponse.setError(UserStatusErrorResponse.builder()
-                    .name(Constants.INVALID_REQUEST)
-                    .message(Constants.INTERNAL_SERVER_ERROR_MESSAGE)
+                    .name(Constants.INTERNAL_SERVER_ERROR_MESSAGE)
+                    .message(ex.getMessage())
                     .timestamp(Timestamp.valueOf(LocalDateTime.now())).build());
         }
         return userDetailResponse;
@@ -213,9 +215,10 @@ public class UserService implements IUserService {
             }
         } catch (Exception ex) {
             log.error("Exception occurred while retrieving user for the ID : {} error : {}", id, ex.getMessage(), ex);
+            userDetailResponse.setStatus(ResponseStatus.FAILED);
             userDetailResponse.setError(UserStatusErrorResponse.builder()
-                    .name(Constants.INVALID_REQUEST)
-                    .message(Constants.INTERNAL_SERVER_ERROR_MESSAGE)
+                    .name(Constants.INTERNAL_SERVER_ERROR_MESSAGE)
+                    .message(ex.getMessage())
                     .timestamp(Timestamp.valueOf(LocalDateTime.now())).build());
         }
         return userDetailResponse;

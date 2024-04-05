@@ -1,6 +1,5 @@
 package com.example.kreausermanagement.dto.response;
 
-import com.example.kreausermanagement.common.enums.ResponseStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

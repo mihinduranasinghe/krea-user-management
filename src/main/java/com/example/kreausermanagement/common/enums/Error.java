@@ -8,6 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Error {
     USER_ID_INVALID_ERROR(Constants.USER_ID_INVALID_ERROR_CODE, Constants.USER_ID_INVALID_MESSAGE),
+    USER_ALREADY_EXIST_ERROR(Constants.USER_ALREADY_EXIST_ERROR_CODE, Constants.USER_ALREADY_EXIST_MESSAGE),
     INTERNAL_SERVER_ERROR(Constants.INTERNAL_SERVER_ERROR_CODE, Constants.INTERNAL_SERVER_ERROR_MESSAGE);
 
     private final int code;
