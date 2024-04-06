@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 @EqualsAndHashCode(callSuper = false)
 @Slf4j
 public class InternalException extends RuntimeException {
-    private static final long serialVersionUID = -5323428968324335011L;
     private final int code;
     private final String message;
     private final String additionalInfo;

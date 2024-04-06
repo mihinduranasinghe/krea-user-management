@@ -1,6 +1,5 @@
 package com.example.kreausermanagement.config;
 import com.example.kreausermanagement.security.JwtAuthenticationFilter;
-import org.apache.catalina.filters.CorsFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

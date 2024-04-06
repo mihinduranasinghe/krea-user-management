@@ -4,7 +4,6 @@ import com.example.kreausermanagement.dto.request.UserRequest;
 import com.example.kreausermanagement.dto.response.*;
 import com.example.kreausermanagement.dto.response.error.ErrorResponse;
 import com.example.kreausermanagement.dto.response.error.UserStatusErrorResponse;
-import com.example.kreausermanagement.entity.User;
 import com.example.kreausermanagement.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
