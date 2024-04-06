@@ -14,11 +14,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin(origins = {
+        "http://localhost:3000",
+        "https://main.d3j8hln1tqdtxw.amplifyapp.com/"
+})
+@RequestMapping(value = "/v1/krea/users")
 public class AuthenticationController {
 
     private final IAuthenticationService authService;
