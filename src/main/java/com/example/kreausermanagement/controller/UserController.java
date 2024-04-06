@@ -66,7 +66,7 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json"))
     })
     @PostMapping("/users")
-    public ResponseEntity<UserCreateResponse> submitNewUser(@RequestBody User request) {
+    public ResponseEntity<UserCreateResponse> submitNewUser(@RequestBody UserRequest request) {
         UserCreateResponse jobRequestResponse = userService.addUserDetails(request);
         return new ResponseEntity<>(jobRequestResponse, getHttpStatus(jobRequestResponse));
     }

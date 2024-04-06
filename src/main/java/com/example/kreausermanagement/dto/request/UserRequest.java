@@ -1,8 +1,12 @@
 package com.example.kreausermanagement.dto.request;
 
 
+import com.example.kreausermanagement.entity.Role;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -29,5 +33,9 @@ public class UserRequest {
     @JsonProperty("password")
     @Schema(example = "********", required = true)
     private String password;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id", referencedColumnName = "id")
+    private Role role;
 }
 

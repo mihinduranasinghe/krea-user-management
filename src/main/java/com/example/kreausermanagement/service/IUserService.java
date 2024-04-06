@@ -18,7 +18,7 @@ public interface IUserService {
      * @param jobRequest - Krea User Management Jobs related information
      * @return
      */
-    UserCreateResponse addUserDetails(User jobRequest);
+    UserCreateResponse addUserDetails(UserRequest jobRequest);
 
     /**
      * This service is used to process the job request from Krea User Management

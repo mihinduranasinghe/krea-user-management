@@ -53,12 +53,12 @@ public class UserService implements IUserService {
     private String apiDocumentation;
 
     @Override
-    public UserCreateResponse addUserDetails(User request) {
+    public UserCreateResponse addUserDetails(UserRequest request) {
         UserCreateResponse response = UserCreateResponse.builder().build();
         try {
             log.info("User request received to create a new user : {}", request);
             User user = User.builder()
-                    .name(request.getName())
+                    .name(request.getUserName())
                     .address(request.getAddress())
                     .email(request.getEmail())
                     .password(passwordEncoder.encode(request.getPassword()))
@@ -82,7 +82,7 @@ public class UserService implements IUserService {
             log.error("Exception occurred while submitting user : {}", ex.getMessage(), ex);
             response.setError(ErrorResponse.builder()
                     .code(Error.INTERNAL_SERVER_ERROR.getCode())
-                    .message(Error.INTERNAL_SERVER_ERROR.getMessage())
+                    .message(ex.getMessage())
                     .informationLink(apiDocumentation)
                     .build());
             response.setStatus(ResponseStatus.FAILED);
@@ -103,6 +103,7 @@ public class UserService implements IUserService {
                 user.setAddress(request.getAddress());
                 user.setEmail(request.getEmail());
                 user.setOccupation(request.getOccupation());
+                user.setRole(request.getRole());
                 User saveResponse = userRequestRepository.save(user);
                 log.info("User saved successfully with the user ID : {}", saveResponse.getUserId());
                 response.setData(UserUpdateResponseData.builder()
@@ -131,7 +132,7 @@ public class UserService implements IUserService {
             response.setData(UserUpdateResponseData.builder().status(ResponseStatus.FAILED).build());
             response.setError(ErrorResponse.builder()
                     .code(Error.INTERNAL_SERVER_ERROR.getCode())
-                    .message(Error.INTERNAL_SERVER_ERROR.getMessage())
+                    .message(ex.getMessage())
                     .informationLink(apiDocumentation)
                     .build());
         }
