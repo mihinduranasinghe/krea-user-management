@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @CrossOrigin(origins = {
         "http://localhost:3000",
-        "https://main.d3j8hln1tqdtxw.amplifyapp.com/"
+        "https://master.d1mr8rrxyjhiit.amplifyapp.com/"
 })
 @RequestMapping(value = "/v1/krea/users")
 public class AuthenticationController {
