@@ -58,7 +58,6 @@ public class AuthenticationService implements IAuthenticationService {
 
     @Override
     public AuthenticationResponse register(UserRequest request) {
-        // check if user already exist. if exist than authenticate the user
         try {
             if(repository.findByEmail(request.getEmail()) != null) {
                 return AuthenticationResponse.builder()
